@@ -12,3 +12,5 @@ COPY . .
 
 # Expose the application port (adjust based on your app)
 EXPOSE 8081
+
+CMD ["node", "index.js"]
