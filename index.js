@@ -8,3 +8,4 @@ app.get('/', (req, res) => {
     console.log("request received: ", new Date())
     res.status(200).json({statusCode: 200, data: 'Server is up!!!'})
 })
+
