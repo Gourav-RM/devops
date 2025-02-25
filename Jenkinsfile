@@ -5,8 +5,12 @@ pipeline {
         stage('Get Previous Tag') {
             steps {
                 script {
-                    def previousTag = sh(script: "git describe --tags --abbrev=0", returnStdout: true).trim()
-                    echo "Previous Tag: ${previousTag}"
+                    def previousTag
+                    try {
+                        previousTag = sh(script: "git describe --tags --abbrev=0", returnStdout: true).trim()
+                    } catch (Exception e) {
+                        previousTag = "0.0.0"  // Default version if no tags exist
+                    }
                     
                     // Extract major, minor, and patch
                     def versionParts = previousTag.tokenize('.')  // Splitting by dot
