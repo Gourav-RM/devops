@@ -65,7 +65,7 @@ pipeline {
                 script {
                     // Replace the image tag dynamically in the Kubernetes YAML file
                     sh """
-                    sed -i '' 's|image: node-demo-image:.*|image: node-demo-image:0.1.3|' k8s-manifest.yml
+                    sed -i '' 's|image: node-demo-image:.*|image: ${env.DOCKER_IMAGE_TAG}|' k8s-manifest.yml
                     """
 
                     // Apply the updated manifest to Kubernetes
