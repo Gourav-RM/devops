@@ -9,7 +9,10 @@ pipeline {
                     echo "Previous Tag: ${previousTag}"
                     
                     // Extract major, minor, and patch
-                    def (major, minor, patch) = previousTag.tokenize('.')*.toInteger()
+                    def versionParts = previousTag.tokenize('.')  // Splitting by dot
+                    def major = versionParts[0] as int
+                    def minor = versionParts[1] as int
+                    def patch = versionParts[2] as int
                     
                     // Get the latest commit message
                     def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
