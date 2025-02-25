@@ -1,6 +1,8 @@
 pipeline {
     agent any
 
+    def DOCKER_IMAGE = 'node-demo-image'
+
     stages {
         stage('Get Previous Tag') {
             steps {
