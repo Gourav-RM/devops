@@ -7,6 +7,8 @@ WORKDIR /app
 # Copy package.json and package-lock.json first (for caching)
 COPY package*.json ./
 
+RUN npm install
+
 # Copy the rest of the application files
 COPY . .
 
