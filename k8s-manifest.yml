@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: my-node-container
-          image: node-demo-image  # Replace with your actual image
+          image: node-demo-image-1.0.0  # Replace with your actual image
           ports:
             - containerPort: 8081
           resources:       # Minimum CPU required (250 millicores = 0.25 vCPU)
