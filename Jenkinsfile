@@ -1,8 +1,6 @@
 pipeline {
     agent any
 
-    def DOCKER_IMAGE = 'node-demo-image'
-
     stages {
         stage('Get Previous Tag') {
             steps {
@@ -53,7 +51,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${env.NEW_TAG} ."
+                    sh "docker build -t node-demo-image:${env.NEW_TAG} ."
                 }
             }
         }
