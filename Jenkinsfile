@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_IMAGE = "node-demo-image"  // Base image name without the tag
+    }
+
     stages {
         stage('Get Previous Tag') {
             steps {
@@ -41,6 +45,7 @@ pipeline {
                     echo "New Tag: ${newTag}"
 
                     env.NEW_TAG = newTag
+                    env.DOCKER_IMAGE_TAG = "${env.DOCKER_IMAGE}:${env.NEW_TAG}"
                     
                     // Tag and push
                     sh "git tag ${newTag}"
@@ -51,13 +56,21 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t node-demo-image:${env.NEW_TAG} ."
+                    sh "docker build -t ${env.DOCKER_IMAGE_TAG} ."
                 }
             }
         }
-        stage('Deploying to Kubernetes') {
+        stage('Update Kubernetes Manifest & Deploy') {
             steps {
-                echo "Deploying to Kubernetes......"
+                script {
+                    // Replace the image tag dynamically in the Kubernetes YAML file
+                    sh """
+                    sed -i 's|image: node-demo-image:.*|image: ${env.DOCKER_IMAGE_TAG}|' k8s-manifest.yaml
+                    """
+
+                    // Apply the updated manifest to Kubernetes
+                    sh "kubectl apply -f k8s-manifest.yaml"
+                }
             }
         }
     }
