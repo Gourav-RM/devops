@@ -2,9 +2,50 @@ pipeline {
     agent any
 
     stages {
+        stage('Get Previous Tag') {
+            steps {
+                script {
+                    def previousTag = sh(script: "git describe --tags --abbrev=0", returnStdout: true).trim()
+                    echo "Previous Tag: ${previousTag}"
+                    
+                    // Extract major, minor, and patch
+                    def (major, minor, patch) = previousTag.tokenize('.')*.toInteger()
+                    
+                    // Get the latest commit message
+                    def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
+                    echo "Commit Message: ${commitMessage}"
+                    
+                    // Determine version bump
+                    if (commitMessage.startsWith('feat:')) {
+                        minor += 1
+                        patch = 0
+                    } else if (commitMessage.startsWith('fix:')) {
+                        patch += 1
+                    } else if (commitMessage.startsWith('break:')) {
+                        major += 1
+                        minor = 0
+                        patch = 0
+                    } else {
+                        echo "No valid prefix found. Skipping version bump."
+                        return
+                    }
+                    
+                    def newTag = "${major}.${minor}.${patch}"
+                    echo "New Tag: ${newTag}"
+
+                    env.NEW_TAG = newTag
+                    
+                    // Tag and push
+                    sh "git tag ${newTag}"
+                    sh "git push origin ${newTag}"
+                }
+            }
+        }
         stage('Build Docker Image') {
             steps {
-                echo "Building Docker Image......"
+                script {
+                    sh "docker build -t ${DOCKER_IMAGE}:${env.NEW_TAG} ."
+                }
             }
         }
         stage('Deploying to Kubernetes') {
