@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-node-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-node-app
+  template:
+    metadata:
+      labels:
+        app: my-node-app
+    spec:
+      containers:
+        - name: my-node-container
+          image: node-demo-image  # Replace with your actual image
+          ports:
+            - containerPort: 8081
+          resources:       # Minimum CPU required (250 millicores = 0.25 vCPU)
+            limits:
+              memory: "512Mi"    # Maximum memory allowed
+              cpu: "500m"
+          env:
+            - name: NODE_ENV
+              value: "production"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-node-service
+spec:
+  selector:
+    app: my-node-app
+  ports:
+    - protocol: TCP
+      port: 80        # External port (Cluster-wide)
+      targetPort: 8081 # Container's port
+      nodePort: 30080  # Manually assigned NodePort (optional, must be between 30000-32767)
+  type: NodePort
+
